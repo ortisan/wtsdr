@@ -1,0 +1,13 @@
+pub mod customer_service_category;
+pub mod description;
+pub mod email;
+pub mod geopoint;
+pub mod id;
+pub mod name;
+pub mod password;
+pub mod phone;
+pub mod photo;
+pub mod tags;
+pub mod tax_id;
+pub mod temporal;
+pub mod url;
