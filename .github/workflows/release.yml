@@ -18,7 +18,7 @@ jobs:
         uses: google-github-actions/release-please-action@v4
         with:
           release-type: simple
-          token: ${{ secrets.RELEASEME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           package-name: wtsdr
           changelog-types: |
             [{
