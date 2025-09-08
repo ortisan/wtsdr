@@ -18,6 +18,7 @@ mod repositories;
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
+
     let database_url = env::var("DATABASE_URL").unwrap();
 
     let db_config = DbConfig { database_url };

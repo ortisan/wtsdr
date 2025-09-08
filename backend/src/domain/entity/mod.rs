@@ -1,3 +1,3 @@
-mod customer_service;
+pub mod customer_service;
 pub mod person;
 pub mod user;

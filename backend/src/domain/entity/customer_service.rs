@@ -13,6 +13,7 @@ use std::collections::HashSet;
 #[derive(Debug, Clone)]
 pub struct CustomerService {
     pub id: Id,
+    pub user_id: Id,
     pub name: Name,
     pub description: Description,
     pub location: GeoPoint,
@@ -23,4 +24,6 @@ pub struct CustomerService {
     pub categories: HashSet<CustomerServiceCategory>,
     pub created_at: DateTime,
     pub updated_at: DateTime,
+    pub deleted: bool,
+    pub deleted_at: Option<DateTime>,
 }

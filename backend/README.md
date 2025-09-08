@@ -8,7 +8,7 @@ Format code
 cargo fmt
 ```
 
-Link
+Lint
 
 ```sh
 cargo clippy --fix --allow-dirty
