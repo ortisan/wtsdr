@@ -32,6 +32,7 @@ impl From<CustomerServiceModel> for CustomerService {
     fn from(m: CustomerServiceModel) -> Self {
         Self {
             id: Id::new_from_string(m.id).unwrap(),
+            user_id: Id::new_from_string(m.user_id).unwrap(),           
             name: Name::new(m.name).unwrap(),
             description: Description::new(m.description).unwrap(),
             location: GeoPoint::new(m.latitude, m.longitude).unwrap(),
