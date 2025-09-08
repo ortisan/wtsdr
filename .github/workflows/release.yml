@@ -1,0 +1,64 @@
+name: Release and Changelog
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: Generate release and CHANGELOG
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release Please
+        uses: google-github-actions/release-please-action@v4
+        with:
+          release-type: simple
+          token: ${{ secrets.RELEASEME }}
+          package-name: wtsdr
+          changelog-types: |
+            [{
+              "type":"feat",
+              "section":"Features",
+              "hidden":false
+            },{
+              "type":"fix",
+              "section":"Bug Fixes",
+              "hidden":false
+            },{
+              "type":"perf",
+              "section":"Performance Improvements",
+              "hidden":false
+            },{
+              "type":"revert",
+              "section":"Reverts",
+              "hidden":false
+            },{
+              "type":"docs",
+              "section":"Documentation",
+              "hidden":false
+            },{
+              "type":"style",
+              "section":"Styles",
+              "hidden":true
+            },{
+              "type":"refactor",
+              "section":"Code Refactoring",
+              "hidden":false
+            },{
+              "type":"test",
+              "section":"Tests",
+              "hidden":true
+            },{
+              "type":"build",
+              "section":"Build System",
+              "hidden":true
+            },{
+              "type":"ci",
+              "section":"Continuous Integration",
+              "hidden":true
+            }]
