@@ -11,3 +11,4 @@ pub mod tags;
 pub mod tax_id;
 pub mod temporal;
 pub mod url;
+pub mod auth_token;

@@ -1,3 +1,4 @@
+use crate::domain::vo::auth_token::AuthToken;
 use crate::domain::vo::email::Email;
 use crate::domain::vo::id::Id;
 use crate::domain::vo::name::Name;
@@ -9,7 +10,8 @@ pub struct User {
     pub id: Id,
     pub name: Name,
     pub email: Email,
-    pub password: Password,
+    pub password: Option<Password>,
+    pub token: Option<AuthToken>,
     pub deleted: bool,
     pub created_at: DateTime,
     pub updated_at: DateTime,
@@ -21,7 +23,8 @@ impl User {
         id: Id,
         name: Name,
         email: Email,
-        password: Password,
+        password: Option<Password>,
+        token: Option<AuthToken>,
         deleted: bool,
         created_at: DateTime,
         updated_at: DateTime,
@@ -32,6 +35,7 @@ impl User {
             name,
             email,
             password,
+            token,
             deleted,
             created_at,
             updated_at,
@@ -45,6 +49,7 @@ pub struct UserPartial {
     pub id: Option<Id>,
     pub name: Option<Name>,
     pub email: Option<Email>,
+    pub token: Option<AuthToken>,
     pub password: Option<Password>,
     pub deleted: Option<bool>,
 }
@@ -55,6 +60,7 @@ impl UserPartial {
         name: Option<Name>,
         email: Option<Email>,
         password: Option<Password>,
+        token: Option<AuthToken>,
         deleted: Option<bool>,
     ) -> Self {
         Self {
@@ -62,6 +68,7 @@ impl UserPartial {
             name,
             email,
             password,
+            token,
             deleted,
         }
     }
