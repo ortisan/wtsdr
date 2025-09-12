@@ -53,7 +53,8 @@ impl TryFrom<UserDataDto> for User {
             id,
             name,
             email,
-            password,
+            Some(password),
+            None,
             false,
             DateTime::new(),
             DateTime::new(),
@@ -116,7 +117,7 @@ impl TryFrom<UserPartialDataDto> for UserPartial {
         }
         let deleted = value.deleted;
 
-        Ok(UserPartial::new(id, name, email, password, deleted))
+        Ok(UserPartial::new(id, name, email, password, None, deleted))
     }
 }
 
