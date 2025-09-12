@@ -49,7 +49,7 @@ pub struct UserPartial {
     pub id: Option<Id>,
     pub name: Option<Name>,
     pub email: Option<Email>,
-    pub token: Option<AuthToken>,
+    pub auth_token: Option<AuthToken>,
     pub password: Option<Password>,
     pub deleted: Option<bool>,
 }
@@ -60,7 +60,7 @@ impl UserPartial {
         name: Option<Name>,
         email: Option<Email>,
         password: Option<Password>,
-        token: Option<AuthToken>,
+        auth_token: Option<AuthToken>,
         deleted: Option<bool>,
     ) -> Self {
         Self {
@@ -68,7 +68,7 @@ impl UserPartial {
             name,
             email,
             password,
-            token,
+            auth_token,
             deleted,
         }
     }

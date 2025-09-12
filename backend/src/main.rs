@@ -8,6 +8,7 @@ use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer, web};
 use std::env;
 use std::sync::Arc;
+use crate::domain::vo::auth_token::{set_auth_secret};
 
 mod common;
 mod domain;
@@ -19,6 +20,9 @@ mod repositories;
 async fn main() -> Result<(), std::io::Error> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
     let database_url = env::var("DATABASE_URL").unwrap();
+
+    // Put secret key to auth_secret
+    set_auth_secret("secret".to_string());
 
     let db_config = DbConfig { database_url };
 

@@ -3,9 +3,14 @@ CREATE TABLE IF NOT EXISTS users
     id         VARCHAR(36) PRIMARY KEY,
     name       VARCHAR(255) NOT NULL,
     email      VARCHAR(255) NOT NULL,
-    password   VARCHAR(255) NOT NULL,
+    password   VARCHAR(255) NULL,
+    auth_token VARCHAR(255) NULL,
     deleted    BOOLEAN      NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ  NOT NULL,
     updated_at TIMESTAMPTZ  NOT NULL,
-    deleted_at TIMESTAMPTZ NULL
+    deleted_at TIMESTAMPTZ NULL,
+    version INTEGER NOT NULL DEFAULT 0
 );
+
+CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
+

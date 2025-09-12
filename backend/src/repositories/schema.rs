@@ -16,5 +16,6 @@ diesel::table! {
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         deleted_at -> Nullable<Timestamptz>,
+        lock_version -> Int4,
     }
 }

@@ -22,6 +22,7 @@ pub struct UserModel {
     pub created_at: ChronoDateTime<Utc>,
     pub updated_at: ChronoDateTime<Utc>,
     pub deleted_at: Option<ChronoDateTime<Utc>>,
+    pub lock_version: i32,
 }
 
 impl From<UserModel> for User {
@@ -32,7 +33,7 @@ impl From<UserModel> for User {
         };
 
         let token = match user_model.auth_token {
-            Some(p) => Some(AuthToken::new(p).unwrap()),
+            Some(p) => Some(AuthToken::parse(p).unwrap()),
             None => None,
         };
 
@@ -62,6 +63,7 @@ impl From<User> for UserModel {
             created_at: user.created_at.to_chono_date_time(),
             updated_at: user.updated_at.to_chono_date_time(),
             deleted_at: user.deleted_at.map(|dt| dt.to_chono_date_time()),
+            lock_version: 0,
         }
     }
 }
