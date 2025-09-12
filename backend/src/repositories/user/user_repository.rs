@@ -160,15 +160,27 @@ impl UserRepository for UserRepositoryPostgres {
         }
 
         let current_time = chrono::Utc::now().naive_utc();
-        let updated_result = update(users_dsl.find(user.id.value()))
-            .set((
-                name.eq(user.name.value()),
-                email.eq(user.email.value()),
-                password.eq(user.password.value()),
-                updated_at.eq(current_time),
-            ))
-            .returning(UserModel::as_returning())
-            .get_result(&mut connection_result.unwrap());
+
+        let updated_result = if let Some(user_password) = &user.password {
+            update(users_dsl.find(user.id.value()))
+                .set((
+                    name.eq(user.name.value()),
+                    email.eq(user.email.value()),
+                    password.eq(user_password.value()),
+                    updated_at.eq(current_time),
+                ))
+                .returning(UserModel::as_returning())
+                .get_result(&mut connection_result.unwrap())
+        } else {
+            update(users_dsl.find(user.id.value()))
+                .set((
+                    name.eq(user.name.value()),
+                    email.eq(user.email.value()),
+                    updated_at.eq(current_time),
+                ))
+                .returning(UserModel::as_returning())
+                .get_result(&mut connection_result.unwrap())
+        };
 
         match updated_result {
             Ok(user) => Ok(Some(User::from(user))),

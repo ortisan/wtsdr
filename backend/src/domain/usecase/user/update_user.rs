@@ -54,15 +54,9 @@ impl UpdateUserUseCase for UpdateUserUseCaseImpl {
             user_partial
                 .password
                 .as_ref()
-                .unwrap_or(&persisted_user.password)
-                .clone(),
-
-            user_partial
-                .token  
-                .as_ref()
-                .unwrap_or(&persisted_user.token)
-                .clone(),
-
+                .map(|p| p.clone())
+                .or(persisted_user.password.as_ref().map(|p| p.clone())),
+            persisted_user.auth_token.clone(),
             user_partial.deleted.unwrap_or(persisted_user.deleted),
             persisted_user.created_at,
             persisted_user.updated_at,

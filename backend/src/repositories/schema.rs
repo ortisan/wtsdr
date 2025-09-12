@@ -9,7 +9,9 @@ diesel::table! {
         #[max_length = 255]
         email -> Varchar,
         #[max_length = 255]
-        password -> Varchar,
+        password -> Nullable<Varchar>,
+        #[max_length = 255]
+        auth_token -> Nullable<Varchar>,
         deleted -> Bool,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
