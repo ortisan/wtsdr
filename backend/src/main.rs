@@ -21,8 +21,9 @@ async fn main() -> Result<(), std::io::Error> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
     let database_url = env::var("DATABASE_URL").unwrap();
 
-    // Put secret key to auth_secret
-    set_auth_secret("secret".to_string());
+    // Put secret key to auth_secret (from env BACKEND_AUTH_SECRET)
+    let backend_secret = env::var("BACKEND_AUTH_SECRET").unwrap_or_else(|_| "dev-secret-change".to_string());
+    set_auth_secret(backend_secret);
 
     let db_config = DbConfig { database_url };
 

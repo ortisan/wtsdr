@@ -2,6 +2,28 @@
 
 This repository uses automated releases and commit message linting to keep a clean history and CHANGELOG.
 
+## Running
+
+1) Generate secrets (creates/updates .env in project root):
+
+```sh
+chmod +x scripts/generate-secrets.sh
+scripts/generate-secrets.sh
+```
+
+2) Start services:
+
+```sh
+docker compose up -d
+```
+
+Notes:
+- docker-compose.yaml reads secrets from .env (POSTGRES_PASSWORD, AUTHELIA_* and BACKEND_AUTH_SECRET).
+- Authelia admin password is set via AUTHELIA_ADMIN_PASSWORD and used in users_database.yaml.
+- Postgres will run config/database/init.sql automatically on first initialization of the volume. To re-run, remove the postgres-data volume: docker compose down -v
+- Postgres metrics exporter is available at http://localhost:9187/metrics (service: postgres-exporter). Point Prometheus to scrape this endpoint.
+
+
 ## Release automation (Release Please)
 
 We use Google’s release-please via GitHub Actions to manage versioning, tags, GitHub Releases, and the CHANGELOG.

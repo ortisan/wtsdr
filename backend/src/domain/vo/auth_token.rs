@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use std::error::Error as StdError;
 use std::sync::Arc;
 use std::sync::OnceLock;
+use chrono::Utc;
+use crate::domain::entity::user::User;
 
 static AUTH_SECRET: OnceLock<String> = OnceLock::new();
 
@@ -12,11 +14,9 @@ pub fn set_auth_secret(secret: String) -> () {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct Claims {
-    aud: String,
+pub struct Claims {
     sub: String,
-    company: String,
-    exp: u64,
+    exp: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -38,7 +38,14 @@ impl AuthToken {
         })
     }
 
-    pub fn new(claims: Claims) -> Self {
+    pub fn new(user: User) -> Self {
+        let expiration = Utc::now() + chrono::Duration::days(1);
+
+        let claims = Claims {
+            sub: user.id.value(),
+            exp: expiration.timestamp() as usize
+        };
+
         let secret = AUTH_SECRET.get().expect("AUTH_SECRET not set");
         let token = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes()))
             .expect("failed to encode token");
@@ -46,77 +53,96 @@ impl AuthToken {
     }
 }
 
-mod test {
+
+
+#[cfg(test)]
+mod tests {
     use super::*;
-    use jsonwebtoken::{encode, EncodingKey, Header};
-    use std::time::{SystemTime, UNIX_EPOCH, Duration};
+    use crate::domain::vo::{id::Id, name::Name, email::Email, password::Password, temporal::DateTime};
+    use crate::domain::entity::user::User;
+    use std::sync::Once;
+    use jsonwebtoken::{decode, DecodingKey, Validation};
+    use chrono::Utc;
 
-    #[test]
-    fn generate_token_and_validate_claims() {
-        // Arrange
-        let secret = "test-secret-123".to_string();
-        if super::AUTH_SECRET.get().is_none() {
-            set_auth_secret(secret.clone());
-        }
+    static INIT: Once = Once::new();
 
-        let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-        let exp = (now + Duration::from_secs(3600)).as_secs();
+    fn init_secret_once() {
+        INIT.call_once(|| {
+            set_auth_secret("test-secret-123".to_string());
+        });
+    }
 
-        let claims = Claims {
-            aud: "wtsdr-app".to_string(),
-            sub: "user-123".to_string(),
-            company: "Acme Corp".to_string(),
-            exp,
-        };
+    fn build_user() -> User {
+        let id = Id::new().unwrap();
+        let name = Name::new("John Doe").unwrap();
+        let email = Email::new("john.doe@example.com".to_string()).unwrap();
+        let password = Some(Password::new("s3cr3t".to_string()).unwrap());
+        let created_at = DateTime::new();
+        let updated_at = DateTime::new();
 
-        // Act - create a new token from claims
-        let created = AuthToken::new(claims.clone());
-
-        // Parse it back to ensure it's valid and signed with the same secret
-        let parsed = AuthToken::parse(created.token.clone()).expect("failed to parse token");
-
-        // Assert
-        assert_eq!(created.claims.aud, claims.aud);
-        assert_eq!(created.claims.sub, claims.sub);
-        assert_eq!(created.claims.company, claims.company);
-        assert_eq!(created.claims.exp, claims.exp);
-
-        assert_eq!(parsed.token, created.token);
-        assert_eq!(parsed.claims.aud, claims.aud);
-        assert_eq!(parsed.claims.sub, claims.sub);
-        assert_eq!(parsed.claims.company, claims.company);
-        assert_eq!(parsed.claims.exp, claims.exp);
+        User::new(
+            id,
+            name,
+            email,
+            password,
+            None,
+            false,
+            created_at,
+            updated_at,
+            None,
+        )
     }
 
     #[test]
-    fn generate_token_and_validate_claims_using_external_encode() {
-        // Arrange
-        let secret = "test-secret-123".to_string();
-        // Set secret only once; if already set (e.g., in another test), skip setting to avoid panic.
-        if super::AUTH_SECRET.get().is_none() {
-            set_auth_secret(secret.clone());
+    fn test_generate_token_and_decode() {
+        init_secret_once();
+        let user = build_user();
+        let token = AuthToken::new(user.clone());
+
+        let decoded = decode::<super::Claims>(
+            &token.token,
+            &DecodingKey::from_secret(AUTH_SECRET.get().unwrap().as_bytes()),
+            &Validation::default(),
+        ).expect("token should decode");
+
+        assert_eq!(decoded.claims.sub, user.id.value());
+        let now = Utc::now().timestamp() as usize;
+        assert!(decoded.claims.exp > now, "exp should be in the future");
+    }
+
+    #[test]
+    fn test_parse_returns_ok() {
+        init_secret_once();
+        let user = build_user();
+        let token = AuthToken::new(user.clone());
+        let parsed = AuthToken::parse(token.token.clone());
+        assert!(parsed.is_ok(), "parse should succeed for a valid token");
+        let parsed = parsed.unwrap();
+        assert_eq!(parsed.token, token.token);
+
+        let decoded = decode::<super::Claims>(
+            &parsed.token,
+            &DecodingKey::from_secret(AUTH_SECRET.get().unwrap().as_bytes()),
+            &Validation::default(),
+        ).expect("token should decode");
+        assert_eq!(decoded.claims.sub, user.id.value());
+    }
+
+    #[test]
+    fn test_parse_fails_on_tampered_token() {
+        init_secret_once();
+        let user = build_user();
+        let token = AuthToken::new(user);
+
+        let mut tampered = token.token.clone();
+        if let Some(ch) = tampered.chars().find(|c| *c != '.') {
+            let pos = tampered.find(ch).unwrap();
+            tampered.replace_range(pos..pos+1, if ch != 'A' { "A" } else { "B" });
+        } else {
+            tampered.push('A');
         }
 
-        let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-        let exp = (now + Duration::from_secs(3600)).as_secs();
-
-        let claims = Claims {
-            aud: "wtsdr-app".to_string(),
-            sub: "user-123".to_string(),
-            company: "Acme Corp".to_string(),
-            exp,
-        };
-
-        let token = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes())).expect("failed to encode token");
-
-        // Act
-        let parsed = AuthToken::parse(token.clone()).expect("failed to parse token");
-
-        // Assert
-        assert_eq!(parsed.token, token);
-        assert_eq!(parsed.claims.aud, "wtsdr-app");
-        assert_eq!(parsed.claims.sub, "user-123");
-        assert_eq!(parsed.claims.company, "Acme Corp");
-        assert_eq!(parsed.claims.exp, exp);
+        let parsed = AuthToken::parse(tampered);
+        assert!(parsed.is_err(), "parse should fail for tampered token");
     }
 }
