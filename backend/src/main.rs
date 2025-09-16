@@ -2,13 +2,13 @@ use crate::domain::usecase::user::create_user::{CreateUserUseCase, CreateUserUse
 use crate::domain::usecase::user::delete_user::{DeleteUserUseCase, DeleteUserUseCaseImpl};
 use crate::domain::usecase::user::update_user::{UpdateUserUseCase, UpdateUserUseCaseImpl};
 use crate::infrastructure::postgres::{DbConfig, PostgresBaseRepository};
-use crate::presentation::user::user_route;
 use crate::repositories::user::user_repository::{UserRepository, UserRepositoryPostgres};
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer, web};
 use std::env;
 use std::sync::Arc;
 use crate::domain::vo::auth_token::{set_auth_secret};
+use crate::presentation::app_routes;
 
 mod common;
 mod domain;
@@ -51,7 +51,7 @@ async fn main() -> Result<(), std::io::Error> {
             .app_data(delete_user_use_case_data.clone())
             .app_data(user_repository_data.clone())
             .wrap(Logger::default())
-            .configure(user_route::routes)
+            .configure(app_routes::routes)
     })
     .bind("0.0.0.0:8080")?
     .run()

@@ -5,8 +5,8 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_USER:-postgres}
       POSTGRES_DB: wtsdr
     ports:
       - "5432:5432"
@@ -26,94 +26,111 @@ services:
           cpus: '0.5'
           memory: '512M'
 
-  postgres-exporter:
-    image: quay.io/prometheuscommunity/postgres-exporter:latest
-    container_name: wtsdr-postgres-exporter
-    env_file:
-      - .env
-    environment:
-      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/wtsdr?sslmode=disable
+#  postgres-exporter:
+#    image: quay.io/prometheuscommunity/postgres-exporter:latest
+#    container_name: wtsdr-postgres-exporter
+#    env_file:
+#      - .env
+#    environment:
+#      - DATA_SOURCE_NAME=postgresql://postr:${POSTGRES_PASSWORD}@postgres:5432/wtsdr?sslmode=disable
+#    ports:
+#      - "9187:9187"
+#    healthcheck:
+#      test: ["CMD", "wget", "-qO-", "http://localhost:9187/metrics"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#    networks:
+#      - wtsdr-network
+#    depends_on:
+#      - postgres
+
+
+
+#  prometheus:
+#    image: prom/prometheus:latest
+#    container_name: wtsdr-prometheus
+#    volumes:
+#      - ./config/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+#      - prometheus-data:/prometheus
+#    command:
+#      - --config.file=/etc/prometheus/prometheus.yaml
+#      - --storage.tsdb.path=/prometheus
+#      - --web.enable-lifecycle
+#    ports:
+#      - "9090:9090"
+#    healthcheck:
+#      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#    networks:
+#      - wtsdr-network
+#
+#  grafana:
+#    image: grafana/grafana:latest
+#    container_name: wtsdr-grafana
+#    environment:
+#      - GF_SECURITY_ADMIN_USER=admin
+#      - GF_SECURITY_ADMIN_PASSWORD=admin
+#      - GF_USERS_ALLOW_SIGN_UP=false
+#    volumes:
+#      - grafana-data:/var/lib/grafana
+#    ports:
+#      - "3000:3000"
+#    depends_on:
+#      - prometheus
+#    healthcheck:
+#      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#    networks:
+#      - wtsdr-network
+
+  casdoor:
+    image: casbin/casdoor:latest
+    container_name: casdoor
+    restart: unless-stopped
     ports:
-      - "9187:9187"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:9187/metrics"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+      - "8000:8000"
+    environment:
+      - GIN_MODE=release
+    volumes:
+      - ./config/casdoor/app.conf:/conf/app.conf:ro
+      - ./logs:/logs
     networks:
       - wtsdr-network
     depends_on:
       - postgres
 
-  authelia:
-    image: authelia/authelia:latest
-    container_name: wtsdr-authelia
-    env_file:
-      - .env
-    # Minimal demo configuration using filesystem (SQLite) storage
-    volumes:
-      - ./config/authelia/configuration.yaml:/config/configuration.yml:ro
-      - ./config/authelia/users_database.yaml:/config/users_database.yml:ro
-      - authelia-data:/config
-    environment:
-      - AUTHELIA_JWT_SECRET=${AUTHELIA_JWT_SECRET}
-      - AUTHELIA_SESSION_SECRET=${AUTHELIA_SESSION_SECRET}
-      - AUTHELIA_STORAGE_ENCRYPTION_KEY=${AUTHELIA_STORAGE_ENCRYPTION_KEY}
-      - AUTHELIA_ADMIN_PASSWORD=${AUTHELIA_ADMIN_PASSWORD}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    ports:
-      - "9091:9091"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:9091/api/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - wtsdr-network
-    depends_on:
-      - postgres
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: wtsdr-prometheus
-    volumes:
-      - ./config/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
-      - prometheus-data:/prometheus
-    command:
-      - --config.file=/etc/prometheus/prometheus.yaml
-      - --storage.tsdb.path=/prometheus
-      - --web.enable-lifecycle
-    ports:
-      - "9090:9090"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - wtsdr-network
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: wtsdr-grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-    volumes:
-      - grafana-data:/var/lib/grafana
-    ports:
-      - "3000:3000"
-    depends_on:
-      - prometheus
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - wtsdr-network
+#  authelia:
+#    image: authelia/authelia:latest
+#    container_name: wtsdr-authelia
+#    env_file:
+#      - .env
+#    # Minimal demo configuration using filesystem (SQLite) storage
+#    volumes:
+#      - ./config/authelia/configuration.yaml:/config/configuration.yml:ro
+#      - ./config/authelia/users_database.yaml:/config/users_database.yml:ro
+#      - authelia-data:/config
+#    environment:
+#      - AUTHELIA_JWT_SECRET=${AUTHELIA_JWT_SECRET}
+#      - AUTHELIA_SESSION_SECRET=${AUTHELIA_SESSION_SECRET}
+#      - AUTHELIA_STORAGE_ENCRYPTION_KEY=${AUTHELIA_STORAGE_ENCRYPTION_KEY}
+#      - POSTGRES_USER=${POSTGRES_USER}
+#      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+#    ports:
+#      - "9091:9091"
+#    healthcheck:
+#      test: [ "CMD", "wget", "-qO-", "http://localhost:9091/api/health" ]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#    networks:
+#      - wtsdr-network
+#    depends_on:
+#      - postgres
 
 volumes:
   postgres-data:
