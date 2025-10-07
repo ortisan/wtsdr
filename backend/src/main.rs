@@ -7,6 +7,7 @@ use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer, web};
 use std::env;
 use std::sync::Arc;
+use dotenv::dotenv;
 use crate::domain::vo::auth_token::{set_auth_secret};
 use crate::presentation::app_routes;
 
@@ -18,6 +19,8 @@ mod repositories;
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
+    dotenv().ok();
+
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
     let database_url = env::var("DATABASE_URL").unwrap();
 

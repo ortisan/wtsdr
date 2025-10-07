@@ -2,19 +2,18 @@ services:
   postgres:
     image: postgres:17-alpine
     container_name: wtsdr-postgres
-    env_file:
-      - .env
+#    env_file:
+#      - .env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_USER:-postgres}
-      POSTGRES_DB: wtsdr
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
       - ./config/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD", "pg_isready", "-q", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -88,55 +87,52 @@ services:
 #    networks:
 #      - wtsdr-network
 
-  casdoor:
-    image: casbin/casdoor:latest
-    container_name: casdoor
-    restart: unless-stopped
-    ports:
-      - "8000:8000"
+  # casdoor:
+  #   image: casbin/casdoor:latest
+  #   container_name: casdoor
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - GIN_MODE=release
+  #   volumes:
+  #     - ./config/casdoor/app.conf:/conf/app.conf:ro
+  #     - ./logs:/logs
+  #   networks:
+  #     - wtsdr-network
+  #   depends_on:
+  #     - postgres
+
+  authelia:
+    image: authelia/authelia:latest
+    container_name: wtsdr-authelia
     environment:
-      - GIN_MODE=release
+      - AUTHELIA_JWT_SECRET=${AUTHELIA_JWT_SECRET}
+      - AUTHELIA_SESSION_SECRET=${AUTHELIA_SESSION_SECRET}
+      - AUTHELIA_STORAGE_ENCRYPTION_KEY=${AUTHELIA_STORAGE_ENCRYPTION_KEY}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "9091:9091"
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://localhost:9091/api/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     volumes:
-      - ./config/casdoor/app.conf:/conf/app.conf:ro
-      - ./logs:/logs
+      - ./config/authelia/configuration.yaml:/config/configuration.yml:ro
+      - ./config/authelia/users_database.yaml:/config/users_database.yml:ro
+      - ./config/certs/auth-server-key.pem:/config/auth-server-key.pem:ro
+      - ./config/certs/auth-server-cert.pem:/config/auth-server-cert.pem:ro
     networks:
       - wtsdr-network
     depends_on:
       - postgres
 
-#  authelia:
-#    image: authelia/authelia:latest
-#    container_name: wtsdr-authelia
-#    env_file:
-#      - .env
-#    # Minimal demo configuration using filesystem (SQLite) storage
-#    volumes:
-#      - ./config/authelia/configuration.yaml:/config/configuration.yml:ro
-#      - ./config/authelia/users_database.yaml:/config/users_database.yml:ro
-#      - authelia-data:/config
-#    environment:
-#      - AUTHELIA_JWT_SECRET=${AUTHELIA_JWT_SECRET}
-#      - AUTHELIA_SESSION_SECRET=${AUTHELIA_SESSION_SECRET}
-#      - AUTHELIA_STORAGE_ENCRYPTION_KEY=${AUTHELIA_STORAGE_ENCRYPTION_KEY}
-#      - POSTGRES_USER=${POSTGRES_USER}
-#      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-#    ports:
-#      - "9091:9091"
-#    healthcheck:
-#      test: [ "CMD", "wget", "-qO-", "http://localhost:9091/api/health" ]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 10
-#    networks:
-#      - wtsdr-network
-#    depends_on:
-#      - postgres
-
 volumes:
-  postgres-data:
-    driver: local
-  authelia-data:
-    driver: local
   prometheus-data:
     driver: local
   grafana-data:

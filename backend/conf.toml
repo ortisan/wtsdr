@@ -1,6 +1,6 @@
 # The following is Casdoor demo site config, replace them with your own Casdoor config
 
-endpoint = "https://door.casdoor.com"
+endpoint = "http://localhost:8000"
 client_id = "3da4c64cf2d349f0b11c"
 client_secret = "f06b5389863413ee75e54b0a8867ad315ba2733a"
 certificate = """-----BEGIN CERTIFICATE-----
@@ -32,3 +32,4 @@ Wnpmw+sgavL+mBXV9mdcqVzY+cJ1RB5Xx6r3/6LAqAlx+UM7t+kcjsZlinVI5oE1
 k642vPno9ZLYTx3uIDNlt5pE3LNRt+g/rv/IKBA8Kwt5dkB0cuZnHSKTbRkB
 -----END CERTIFICATE-----"""
 org_name = "wtsdr"
+app_name = "wtsdr-app"

@@ -1,0 +1,16 @@
+# Authelia users database
+# NOTE: Passwords must be hashed (argon2id, scrypt, or bcrypt). To generate a hash use:
+# docker run --rm -it authelia/authelia:latest authelia crypto hash generate argon2 --password 'yourpassword'
+# Or use the helper from Authelia docs. Replace the hash below accordingly.
+
+users:
+  admin:
+    displayname: "Administrator"
+    # Example hash for the password "admin" (bcrypt cost 10).
+    # It is STRONGLY recommended to replace this with your own hash.
+    # You can also set AUTHELIA_ADMIN_PASSWORD via .env and regenerate this file accordingly.
+    password: "$2y$10$7aUpQpQ1m7s6cVbBzj6k9ebJ0f4wM2kW8a2H4u5F3o0p6q1r2s3u."
+    email: admin@localhost
+    groups:
+      - admins
+      - dev

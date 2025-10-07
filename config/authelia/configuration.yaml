@@ -1,0 +1,66 @@
+# Authelia minimal configuration for wtsdr
+# Docs: https://www.authelia.com/configuration/
+
+server:
+  address: tcp://0.0.0.0:9091
+  disable_healthcheck: false
+  tls:
+    key: '/config/auth-server-key.pem'
+    certificate: '/config/auth-server-cert.pem'
+    client_certificates: [ ]
+
+log:
+  level: info
+
+theme: dark
+
+default_redirection_url: https://server.ortisan:3000
+
+jwt_secret: "${AUTHELIA_JWT_SECRET}"
+
+totp:
+  issuer: wtsdr
+
+# Local session cookies
+session:
+  name: wtsdr_session
+  secret: "${AUTHELIA_SESSION_SECRET}"
+  same_site: lax
+  expiration: 1h
+  inactivity: 5m
+  remember_me_duration: 1M
+  domain: ortisan.com
+
+# Local SQLite storage
+storage:
+  encryption_key: "${AUTHELIA_STORAGE_ENCRYPTION_KEY}"
+  postgres:
+    address: 'tcp://postgres:5432'
+    servers: [ ]
+    database: 'wtsdr'
+    schema: 'auth'
+    username: 'postgres'
+    password: 'postgres'
+    timeout: '5s'
+
+# File-based users database
+authentication_backend:
+  file:
+    path: /config/users_database.yml
+    password:
+      algorithm: argon2id
+      iterations: 3
+      parallelism: 1
+      memory: 65536
+
+# Basic access control for ortisan
+access_control:
+  default_policy: bypass
+  rules:
+    - domain: "ortisan"
+      policy: bypass
+
+# Use a simple filesystem notifier to store notifications in a file
+notifier:
+  filesystem:
+    filename: /config/notification.txt
