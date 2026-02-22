@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #1A73E8;
+  --color-primary-hover: #1557B0;
+  --color-bg: #FFFFFF;
+  --color-bg-secondary: #F8F9FA;
+  --color-text: #202124;
+  --color-text-secondary: #5F6368;
+  --color-border: #DADCE0;
+  --color-success: #34A853;
+  --color-error: #EA4335;
+  --color-star: #FBBC04;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+.card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  transition: box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: 0 2px 12px rgba(32, 33, 36, 0.1);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.chip {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chip:hover,
+.chip-active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.search-bar {
+  width: 100%;
+  padding: 14px 20px 14px 48px;
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  font-size: 16px;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.search-bar:focus {
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.18);
+  border-color: transparent;
+}

@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #1A73E8;
+  --color-primary-hover: #1557B0;
+  --color-bg: #FFFFFF;
+  --color-bg-secondary: #F8F9FA;
+  --color-text: #202124;
+  --color-text-secondary: #5F6368;
+  --color-border: #DADCE0;
+  --color-success: #34A853;
+  --color-error: #EA4335;
+  --color-warning: #FBBC04;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+/* Google Places inspired utility classes */
+.card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.12);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--color-primary);
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 14px;
+  border: 1px solid var(--color-border);
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.15s ease;
+  outline: none;
+}
+
+.input-field:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.15);
+}
+
+.input-error {
+  border-color: var(--color-error);
+}
+
+.error-text {
+  color: var(--color-error);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 6px;
+}
